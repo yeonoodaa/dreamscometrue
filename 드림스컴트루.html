@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🌙 Dreams Come True</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Exo+2:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --lav:#7C6FD4;--lavd:#5B50B8;--lavm:#9B90E8;--lavl:#EEF0FF;
+  --sky:#9BBDE8;--bdr:rgba(180,170,240,.5);--bdr2:rgba(180,170,240,.3);
+  --px:'Orbitron',monospace;
+}
+body{font-family:'Exo 2','Apple SD Gothic Neo',sans-serif;background:linear-gradient(145deg,#EBE8FF 0%,#DBE8FF 45%,#E8F4FF 100%);min-height:100vh;color:#3D3580}
+button{cursor:pointer;font-family:'Exo 2',sans-serif;border:none;transition:all .12s}
+button:active{transform:scale(.96);opacity:.88}
+input,textarea{font-family:'Exo 2',sans-serif;outline:none}
+textarea{resize:none}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:rgba(155,144,232,.35);border-radius:4px}
+
+
+/* LOGIN SCREEN */
+#login{display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,#EBE8FF 0%,#DBE8FF 45%,#E8F4FF 100%);min-height:100vh;position:relative;overflow:hidden;padding:32px 24px;text-align:center}
+.login-box{background:rgba(255,255,255,.8);border:1.5px solid var(--bdr);border-radius:24px;padding:28px 24px;width:100%;max-width:320px;box-shadow:0 8px 32px rgba(124,111,212,.15);position:relative;z-index:1}
+.login-logo{font-size:36px;margin-bottom:10px}
+.login-title{font-family:var(--px);font-size:13px;font-weight:900;color:#4A4090;margin-bottom:4px;letter-spacing:1px}
+.login-sub{font-family:var(--px);font-size:8px;color:#9898C8;margin-bottom:24px;letter-spacing:.5px}
+.login-tab-row{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:rgba(245,240,255,.8);border-radius:12px;padding:3px;margin-bottom:20px}
+.login-tab{padding:8px 0;border-radius:10px;font-family:var(--px);font-size:8px;color:#9898C8;background:transparent;border:none;cursor:pointer;font-weight:700;letter-spacing:.5px}
+.login-tab.active{background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff}
+.login-field{width:100%;padding:11px 14px;border:1.5px solid var(--bdr);border-radius:12px;font-size:13px;font-weight:600;color:#3D3580;background:rgba(255,255,255,.8);margin-bottom:10px;font-family:inherit}
+.login-field::placeholder{color:#B8B4DC}
+.login-field:focus{border-color:var(--lav);outline:none}
+.login-submit{width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,var(--lavd),var(--lav),var(--sky));color:#fff;font-family:var(--px);font-size:9px;font-weight:900;letter-spacing:.5px;border:none;cursor:pointer;margin-top:4px;box-shadow:0 4px 16px rgba(124,111,212,.35)}
+.login-submit:disabled{background:rgba(180,170,240,.3);color:#C0B8DC;box-shadow:none}
+.login-err{font-size:11px;font-weight:700;color:#DC2626;margin-top:8px;min-height:16px}
+.login-ok{font-size:11px;font-weight:700;color:#059669;margin-top:8px;min-height:16px}
+.user-badge{display:flex;align-items:center;gap:8px;background:rgba(245,240,255,.8);border:1.5px solid var(--bdr);border-radius:12px;padding:6px 12px}
+.user-email{font-family:var(--px);font-size:8px;color:var(--lavd);letter-spacing:.3px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{font-family:var(--px);font-size:7px;color:#DC2626;background:rgba(254,202,202,.3);border:1px solid rgba(220,38,38,.25);border-radius:8px;padding:4px 8px;cursor:pointer;white-space:nowrap}
+/* SCREENS */
+#intro{display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,#EBE8FF 0%,#DBE8FF 45%,#E8F4FF 100%);min-height:100vh;position:relative;overflow:hidden;padding:32px 24px;text-align:center}
+#app{display:none;min-height:100vh;padding:0 16px 100px}
+
+/* ANIMATIONS */
+@keyframes tw{0%,100%{opacity:.1;transform:scale(.7)}50%{opacity:.9;transform:scale(1.3)}}
+@keyframes sh{0%{opacity:0;transform:translate(0,0) rotate(-38deg)}20%{opacity:1}100%{opacity:0;transform:translate(120px,75px) rotate(-38deg)}}
+@keyframes fu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-rec{0%,100%{box-shadow:0 0 0 8px rgba(239,68,68,.2)}50%{box-shadow:0 0 0 14px rgba(239,68,68,.1)}}
+@keyframes blink{50%{opacity:0}}
+
+.star{position:absolute;border-radius:50%;background:rgba(155,140,230,.6);animation:tw 3s ease-in-out infinite}
+.shoot{position:absolute;height:1.5px;background:linear-gradient(to right,transparent,rgba(155,190,230,.5),transparent);animation:sh 1.6s ease-out infinite}
+
+/* INTRO */
+.intro-content{position:relative;z-index:1;animation:fu .9s both;max-width:320px;width:100%}
+.monitor{width:100px;height:82px;background:linear-gradient(135deg,#A8A0E8,#90B8E8);border-radius:14px 14px 6px 6px;border:2px solid var(--bdr);box-shadow:0 8px 32px rgba(124,111,212,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;position:relative;overflow:hidden}
+.monitor::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.04) 2px,rgba(255,255,255,.04) 4px)}
+.monitor-text{font-family:var(--px);font-size:11px;font-weight:900;color:#FDE68A;line-height:1.3;position:relative;z-index:1}
+.monitor-stand{width:28px;height:8px;background:linear-gradient(135deg,#C8C4F4,#A8C4F0);margin:0 auto;border-radius:0 0 4px 4px;border:1.5px solid var(--bdr);border-top:none}
+.monitor-base{width:54px;height:5px;background:linear-gradient(135deg,#DDD8F8,#B8D4F8);margin:0 auto 24px;border-radius:3px;border:1.5px solid var(--bdr)}
+.intro-title{font-family:var(--px);font-size:18px;font-weight:900;color:#4A4090;margin-bottom:5px;letter-spacing:1px}
+.intro-sub{font-family:var(--px);font-size:9px;color:var(--lav);letter-spacing:1px;margin-bottom:20px}
+.date-chip{display:inline-block;background:rgba(255,255,255,.65);border:1.5px solid var(--bdr);border-radius:20px;padding:6px 20px;font-family:var(--px);font-size:9px;color:var(--lav);margin-bottom:22px;letter-spacing:.5px}
+.mic-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:8px}
+.mic-btn{width:74px;height:74px;border-radius:50%;background:linear-gradient(135deg,var(--lav),var(--sky));box-shadow:0 8px 28px rgba(124,111,212,.25),0 0 0 10px rgba(180,200,240,.15);border:none;font-size:30px;display:flex;align-items:center;justify-content:center}
+.mic-btn.recording{background:linear-gradient(135deg,#EF4444,#F87171);animation:pulse-rec 1s ease-in-out infinite}
+.mic-label{font-family:var(--px);font-size:8px;color:var(--lav);letter-spacing:1px}
+.mic-hint{font-size:10px;color:#B8B0D8;margin-bottom:10px}
+.rec-timer{font-family:var(--px);font-size:10px;color:#EF4444;letter-spacing:1px}
+.rec-preview{background:rgba(255,255,255,.65);border:1.5px solid var(--bdr);border-radius:12px;padding:10px 14px;font-size:12px;color:#5B50B8;line-height:1.6;font-weight:600;max-width:260px;text-align:left;margin:4px 0}
+.voice-result{width:100%;max-width:260px;margin:0 auto 10px}
+.voice-result-box{background:rgba(255,255,255,.72);border:1.5px solid var(--bdr);border-radius:14px;padding:12px 14px;margin-bottom:8px;text-align:left}
+.voice-result-label{font-family:var(--px);font-size:8px;color:#9898C8;margin-bottom:6px;letter-spacing:.5px}
+.voice-result-text{font-size:13px;color:#3D3580;line-height:1.7;font-weight:600}
+.voice-btns{display:flex;gap:7px}
+.btn-save-voice{flex:2;padding:10px 0;border-radius:12px;background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff;font-family:var(--px);font-size:8px;font-weight:700;letter-spacing:.5px;border:none}
+.btn-redo{flex:1;padding:10px 0;border-radius:12px;background:rgba(255,255,255,.7);border:1.5px solid var(--bdr);color:var(--lav);font-family:var(--px);font-size:8px;font-weight:700}
+.or-line{display:flex;align-items:center;gap:10px;margin:4px auto 10px;width:220px}
+.or-line::before,.or-line::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.or-line span{font-size:10px;color:#C0B8DC}
+.press-btn{width:100%;max-width:260px;padding:14px 0;border-radius:12px;background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff;font-family:var(--px);font-size:10px;font-weight:900;letter-spacing:1px;box-shadow:0 6px 24px rgba(124,111,212,.3);border:none;animation:blink 1.4s ease-in-out infinite}
+.intro-hint{font-size:10px;color:#B8B0D8;margin-top:12px}
+
+/* APP */
+.app-wrap{max-width:420px;margin:0 auto}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 14px}
+.logo-row{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo-icon{width:34px;height:28px;background:linear-gradient(135deg,#C8C4F4,#B8D4F8);border-radius:8px 8px 4px 4px;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:14px}
+.logo-title{font-family:var(--px);font-size:12px;font-weight:900;color:#4A4090;letter-spacing:.5px}
+.logo-sub{font-family:var(--px);font-size:8px;color:#9898C8;margin-top:1px}
+.lv-chip{font-family:var(--px);font-size:8px;font-weight:900;color:#5B50B8;background:linear-gradient(135deg,rgba(200,195,255,.8),rgba(185,215,255,.8));border:1.5px solid var(--bdr);border-radius:8px;padding:5px 12px}
+.tab-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:rgba(255,255,255,.55);border-radius:14px;padding:4px;border:1.5px solid var(--bdr);margin-bottom:18px}
+.tab-btn{padding:9px 0;border-radius:11px;background:transparent;color:#9898C8;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;border:2px solid transparent}
+.tab-btn.active{background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff;border-color:var(--lavd)}
+.tab-pane{display:none;flex-direction:column;gap:10px;animation:slideUp .25s ease-out}
+.tab-pane.active{display:flex}
+
+/* CARD */
+.card{background:rgba(255,255,255,.72);border:1.5px solid var(--bdr);border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(160,150,230,.12)}
+.card-hdr{background:linear-gradient(90deg,rgba(210,205,255,.6),rgba(200,225,255,.6));padding:8px 14px;border-bottom:1.5px solid var(--bdr);display:flex;align-items:center;gap:6px}
+.card-hdr-icon{font-size:14px}
+.card-hdr-title{font-family:var(--px);font-size:9px;font-weight:700;color:var(--lav);letter-spacing:1.5px;text-transform:uppercase}
+.card-body{padding:12px 14px}
+.type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.type-btn{border-radius:14px;padding:12px 0;text-align:center;background:rgba(255,255,255,.7);border:2.5px solid var(--bdr)}
+.type-btn.sel-good{border-color:#FDE68A;background:rgba(253,230,138,.15);box-shadow:0 4px 16px rgba(253,230,138,.4)}
+.type-btn.sel-normal{border-color:var(--lav);background:rgba(124,111,212,.08);box-shadow:0 4px 16px rgba(124,111,212,.25)}
+.type-btn.sel-bad{border-color:#FECACA;background:rgba(254,202,202,.15);box-shadow:0 4px 16px rgba(254,202,202,.4)}
+.type-em{font-size:24px;display:block;margin-bottom:4px}
+.type-lbl{font-family:var(--px);font-size:7px;color:#9898C8}
+.type-btn.sel-good .type-lbl{color:#D97706}
+.type-btn.sel-normal .type-lbl{color:var(--lav)}
+.type-btn.sel-bad .type-lbl{color:#DC2626}
+.toggle{width:42px;height:23px;border-radius:12px;background:rgba(200,195,240,.4);border:2px solid var(--bdr);position:relative;cursor:pointer}
+.toggle.on{background:linear-gradient(135deg,var(--lav),var(--sky));border-color:var(--lavd)}
+.toggle-knob{position:absolute;top:2px;left:2px;width:15px;height:15px;background:#fff;border-radius:50%;box-shadow:1px 1px 3px rgba(0,0,0,.18);transition:left .2s}
+.toggle.on .toggle-knob{left:21px}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.tag-pill{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--bdr);background:rgba(255,255,255,.75);color:var(--lav);font-size:12px;font-weight:700}
+.tag-pill.sel{background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff;border-color:var(--lavd)}
+.dream-ta{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:11px 13px;font-size:13px;font-weight:600;color:#3D3580;background:rgba(255,255,255,.75);line-height:1.7}
+.dream-ta::placeholder{color:#B8B4DC}
+
+/* AI */
+.ai-tabs{display:flex;border-bottom:1.5px solid var(--bdr)}
+.ai-tab{flex:1;padding:8px 0;text-align:center;font-family:var(--px);font-size:7px;color:#9898C8;background:rgba(255,255,255,.4);border-right:1.5px solid var(--bdr);letter-spacing:.5px;cursor:pointer}
+.ai-tab:last-child{border-right:none}
+.ai-tab.active{background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff}
+.ai-body{padding:12px 14px}
+.ai-pane{display:none}
+.ai-pane.active{display:block}
+.ai-run-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;margin-bottom:10px;background:linear-gradient(135deg,var(--lavd),var(--lav));color:#fff;font-family:var(--px);font-size:7px;font-weight:700;letter-spacing:.5px;border:none;cursor:pointer}
+.ai-txt{font-size:12px;font-weight:700;color:#3D3580;line-height:1.8}
+.ai-ph{font-size:12px;color:#B8B4DC;font-weight:600}
+.track-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.65);border:1px solid var(--bdr2);margin-bottom:5px}
+.track-num{font-family:var(--px);font-size:7px;color:#9898C8;width:12px}
+.track-name{font-size:12px;font-weight:700;color:#3D3580;flex:1}
+.spotify-all-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;padding:9px;border-radius:12px;background:linear-gradient(135deg,#1DB954,#19a348);color:#fff;font-family:var(--px);font-size:8px;font-weight:700;letter-spacing:.5px;text-decoration:none;border:none}
+.save-btn{width:100%;padding:15px 0;border-radius:16px;background:linear-gradient(135deg,var(--lavd),var(--lav),var(--sky));color:#fff;font-family:var(--px);font-size:9px;font-weight:900;letter-spacing:.5px;box-shadow:0 4px 20px rgba(124,111,212,.4);border:none}
+.save-btn:disabled{background:rgba(180,170,240,.25);color:#C0B8DC;box-shadow:none}
+.today-item{background:rgba(245,243,255,.8);border-radius:13px;padding:11px 12px;border:1px solid var(--bdr2);position:relative;margin-bottom:8px}
+.today-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.mini-tag{font-family:var(--px);font-size:7px;padding:2px 8px;border-radius:10px;background:rgba(200,198,247,.4);color:var(--lavd);border:1.5px solid var(--bdr)}
+.del-btn{position:absolute;top:9px;right:9px;background:none;border:none;opacity:.4;font-size:14px;padding:2px;cursor:pointer}
+.card-make-btn{font-family:var(--px);font-size:7px;padding:3px 9px;border-radius:9px;background:rgba(83,74,183,.12);color:var(--lav);border:1.5px solid var(--bdr);margin-left:auto;cursor:pointer}
+
+/* CALENDAR */
+.search-bar{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.75);border:1.5px solid var(--bdr);border-radius:14px;padding:9px 14px}
+.search-bar input{flex:1;border:none;background:transparent;font-size:13px;font-weight:600;color:#3D3580}
+.search-clear{background:none;border:none;font-size:14px;color:#9898C8;cursor:pointer}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.cal-nav-btn{background:rgba(255,255,255,.8);border:1.5px solid var(--bdr);border-radius:9px;padding:5px 10px;color:var(--lav);font-size:14px;font-family:var(--px);cursor:pointer}
+.cal-month{font-family:var(--px);font-size:10px;font-weight:900;color:#4A4090}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dh{text-align:center;font-family:var(--px);font-size:6px;padding:3px 0;color:#9898C8}
+.cal-dh.sun{color:#E88080}.cal-dh.sat{color:#80B0E8}
+.cal-day{display:flex;flex-direction:column;align-items:center;padding:5px 0;border-radius:10px;cursor:pointer}
+.cal-day:hover{background:rgba(180,170,240,.15)}
+.cal-day.today{background:rgba(155,144,232,.2)}
+.cal-day.today .cal-num{color:var(--lav);font-weight:900}
+.cal-day.sel{background:linear-gradient(135deg,var(--lav),var(--sky))}
+.cal-day.sel .cal-num{color:#fff;font-weight:900}
+.cal-num{font-size:12px;font-weight:600;color:#4A4490}
+.cal-dot{width:5px;height:5px;border-radius:50%;margin-top:2px}
+.cal-legend{display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr2)}
+.leg{display:flex;align-items:center;gap:4px;font-family:var(--px);font-size:5px;color:#9898C8}
+
+/* STATS */
+.lv-card{background:linear-gradient(135deg,var(--lavd),var(--lav),var(--sky));border-radius:18px;padding:16px 18px;box-shadow:0 4px 20px rgba(124,111,212,.25)}
+.lv-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.lv-av{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.3)}
+.lv-name{font-family:var(--px);font-size:8px;color:#fff;margin-bottom:4px;letter-spacing:.5px}
+.lv-sub{font-size:11px;font-weight:600;color:rgba(255,255,255,.65)}
+.lv-num{font-family:var(--px);font-size:22px;font-weight:900;color:#FDE68A;margin-left:auto}
+.lv-bar-bg{height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden}
+.lv-bar-fill{height:8px;background:linear-gradient(90deg,#FDE68A,#fff);border-radius:4px;transition:width .6s}
+.lv-labels{display:flex;justify-content:space-between;margin-top:4px}
+.lv-lbl{font-family:var(--px);font-size:5px;color:rgba(255,255,255,.45)}
+.stat3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stat-card{background:rgba(255,255,255,.72);border:1.5px solid var(--bdr);border-radius:14px;padding:12px 6px;text-align:center}
+.stat-em{font-size:22px;margin-bottom:4px}
+.stat-val{font-family:var(--px);font-size:13px;font-weight:900;color:#4A4090;margin-bottom:2px}
+.stat-lbl{font-family:var(--px);font-size:5px;color:#9898C8}
+.badge-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px}
+.badge-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.badge-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.badge-icon.earned{background:linear-gradient(135deg,rgba(180,170,240,.5),rgba(155,190,232,.4));border:1.5px solid var(--bdr)}
+.badge-icon.locked{background:rgba(255,255,255,.3);border:1.5px solid var(--bdr2);filter:grayscale(1);opacity:.4}
+.badge-name{font-family:var(--px);font-size:5px;color:var(--lav);text-align:center;max-width:50px;line-height:1.4}
+.badge-name.locked{color:#C0B8DC}
+.wc-wrap{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:4px 0}
+.wc-word{font-weight:900;border-radius:20px;border:1px solid var(--bdr2);background:rgba(124,111,212,.1);color:var(--lavd);cursor:default}
+.exp-btn{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:13px;border:1px solid var(--bdr);background:rgba(255,255,255,.65);margin-bottom:7px;width:100%;cursor:pointer}
+.exp-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.5px solid var(--bdr);flex-shrink:0}
+.exp-title{font-family:var(--px);font-size:7px;color:#4A4090;margin-bottom:2px;letter-spacing:.5px}
+.exp-sub{font-size:11px;font-weight:700;color:#9898C8}
+.widget-preview{background:linear-gradient(145deg,#EBE8FF,#DBE8FF,#E8F4FF);border-radius:14px;padding:13px 14px;border:1.5px solid var(--bdr);margin-bottom:10px}
+.shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shortcut-item{background:rgba(255,255,255,.72);border:1.5px solid var(--bdr);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer}
+
+/* TOAST */
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff;padding:10px 22px;border-radius:12px;font-family:var(--px);font-size:9px;font-weight:700;letter-spacing:.5px;box-shadow:0 4px 20px rgba(124,111,212,.35);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9999}
+#toast.show{opacity:1}
+
+/* MODAL */
+#card-modal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(20,8,50,.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px 16px}
+#card-modal.show{display:flex}
+.modal-box{width:100%;max-width:360px;background:#EEF0FF;border-radius:24px;overflow:hidden;border:2px solid var(--bdr);box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.modal-hdr{background:linear-gradient(90deg,#C8C4F4,#B8D4F8);padding:9px 14px;border-bottom:2px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:var(--px);font-size:9px;font-weight:700;color:#3C3489;letter-spacing:.5px}
+.modal-close{background:#FECACA;border:1.5px solid #DC2626;border-radius:5px;width:20px;height:20px;font-size:11px;color:#DC2626;cursor:pointer}
+.modal-preview{margin:12px;border-radius:16px;overflow:hidden;aspect-ratio:2/3;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.modal-btns{display:flex;gap:8px;padding:0 12px 14px}
+.modal-cancel{flex:1;padding:11px 0;border-radius:14px;border:2px solid var(--bdr);background:rgba(255,255,255,.7);color:var(--lav);font-family:var(--px);font-size:8px;font-weight:700;cursor:pointer}
+.modal-save{flex:2;padding:11px 0;border-radius:14px;background:linear-gradient(135deg,var(--lavd),var(--lav));color:#fff;font-family:var(--px);font-size:8px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.modal-save:disabled{background:rgba(200,198,247,.4);color:#A5A2E8}
+
+/* API BANNER */
+#api-banner{position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(135deg,#C8C4F4,#B8D4F8);border-top:1px solid var(--bdr);padding:10px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 -4px 16px rgba(124,111,212,.2)}
+#api-banner input{flex:1;padding:7px 12px;border-radius:8px;border:1.5px solid var(--bdr);background:rgba(255,255,255,.65);color:#3D3580;font-family:var(--px);font-size:9px}
+#api-banner input::placeholder{color:rgba(100,90,180,.5)}
+.api-lbl{font-family:var(--px);font-size:8px;color:#6658B8;white-space:nowrap}
+.api-save{padding:7px 14px;border-radius:8px;background:#FDE68A;border:2px solid #B45309;color:#78350F;font-family:var(--px);font-size:8px;font-weight:900}
+.api-x{background:rgba(255,255,255,.5);border:1.5px solid var(--bdr);border-radius:6px;width:24px;height:24px;font-size:12px;color:var(--lav);display:flex;align-items:center;justify-content:center;cursor:pointer}
+#api-banner.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="api-banner">
+  <span class="api-lbl">🔑 API</span>
+  <input type="password" id="api-input" placeholder="Anthropic API Key 입력 시 AI 해몽/동화/음악 활성화"/>
+  <button class="api-save" onclick="saveApiKey()">저장</button>
+  <button class="api-x" onclick="document.getElementById('api-banner').classList.add('hidden')">✕</button>
+</div>
+<div id="toast"></div>
+
+<div id="card-modal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-title" id="modal-title">✦ DREAM CARD</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-preview" id="modal-preview">
+      <span style="font-size:24px;animation:spin 1s linear infinite;display:inline-block">⟳</span>
+      <p style="font-family:var(--px);font-size:8px;color:rgba(100,90,200,.6)">AI GENERATING...</p>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">CANCEL</button>
+      <button class="modal-save" id="modal-save-btn" onclick="downloadCard()" disabled>⟳ 생성 중...</button>
+    </div>
+  </div>
+</div>
+
+<div id="login">
+  <div class="login-box">
+    <div class="login-logo">🌙</div>
+    <div class="login-title">DREAMS COME TRUE</div>
+    <div class="login-sub">꿈을 기록하고 분석하세요</div>
+    <div class="login-tab-row">
+      <button class="login-tab active" id="tab-signin" onclick="switchLoginTab('signin')">로그인</button>
+      <button class="login-tab" id="tab-signup" onclick="switchLoginTab('signup')">회원가입</button>
+    </div>
+    <input class="login-field" type="email" id="login-email" placeholder="이메일 주소"/>
+    <input class="login-field" type="password" id="login-pw" placeholder="비밀번호 (6자 이상)"
+      onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div id="login-name-wrap" style="display:none">
+      <input class="login-field" type="text" id="login-name" placeholder="닉네임 (선택사항)"/>
+    </div>
+    <button class="login-submit" id="login-btn" onclick="doLogin()">LOGIN ▶</button>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-ok" id="login-ok"></div>
+  </div>
+</div>
+<div id="intro">
+  <div class="intro-content">
+    <div class="monitor"><div class="monitor-text">DREAM<br/>LOG<br/>🌙</div></div>
+    <div class="monitor-stand"></div>
+    <div class="monitor-base"></div>
+    <h1 class="intro-title">드림스컴트루</h1>
+    <p class="intro-sub">DREAMS COME TRUE ✦</p>
+    <div class="date-chip" id="intro-date"></div>
+    <div class="mic-wrap" id="mic-idle">
+      <button class="mic-btn" onclick="startRec()">🎙</button>
+      <p class="mic-label">TAP TO RECORD</p>
+      <p class="mic-hint">말하면 자동으로 텍스트 변환</p>
+      <div class="or-line"><span>or</span></div>
+    </div>
+    <div id="mic-recording" style="display:none;flex-direction:column;align-items:center;gap:8px;margin-bottom:8px">
+      <div class="mic-btn recording">🎙</div>
+      <p class="rec-timer" id="rec-timer">REC 00:00</p>
+      <p id="rec-preview" class="rec-preview" style="display:none"></p>
+    </div>
+    <div id="mic-result" style="display:none" class="voice-result">
+      <div class="voice-result-box">
+        <p class="voice-result-label">VOICE → TEXT</p>
+        <p class="voice-result-text" id="voice-text-el"></p>
+      </div>
+      <div class="voice-btns">
+        <button class="btn-save-voice" onclick="saveVoice()">저장하기</button>
+        <button class="btn-redo" onclick="redoRec()">다시 녹음</button>
+      </div>
+    </div>
+    <button class="press-btn" id="press-start" onclick="goMain('')">▶ PRESS START ◀</button>
+    <p class="intro-hint">일어나자마자 기록하면 가장 생생해요</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="app-wrap">
+    <div class="app-header">
+      <div class="logo-row" onclick="showIntro()">
+        <div class="logo-icon">🌙</div>
+        <div><div class="logo-title">드림스컴트루</div><div class="logo-sub">DREAMS COME TRUE</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-badge" id="user-badge" style="display:none">
+        <span style="font-size:14px">🌙</span>
+        <span class="user-email" id="user-email-txt"></span>
+        <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+      </div>
+      <div class="lv-chip" id="lv-chip">LV.1</div>
+    </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('record')"><span>✏️</span><span style="font-family:var(--px);font-size:8px">기록</span></button>
+      <button class="tab-btn" onclick="switchTab('calendar')"><span>📅</span><span style="font-family:var(--px);font-size:8px">달력</span></button>
+      <button class="tab-btn" onclick="switchTab('stats')"><span>📊</span><span style="font-family:var(--px);font-size:8px">분석</span></button>
+    </div>
+    <div id="tab-record" class="tab-pane active"></div>
+    <div id="tab-calendar" class="tab-pane"></div>
+    <div id="tab-stats" class="tab-pane"></div>
+  </div>
+</div>
+<script>
+// ── 상수 ──
+var TAGS=[
+  {id:"sky",e:"☁️",l:"하늘비행"},{id:"chase",e:"🏃",l:"추격전"},
+  {id:"place",e:"🏠",l:"낯선장소"},{id:"nested",e:"📺",l:"꿈속의꿈"},
+  {id:"water",e:"🌊",l:"물속세계"},{id:"family",e:"👨‍👩‍👧",l:"가족재회"},
+  {id:"monster",e:"👾",l:"괴물출현"},{id:"treasure",e:"💎",l:"보물발견"},
+  {id:"exam",e:"📝",l:"시험꿈"},{id:"love",e:"💕",l:"연애꿈"}
+];
+var MOODS=[
+  {color:"#D8B4FE",bg:"linear-gradient(145deg,#3B0764,#6D28D9,#C4B5FD)",name:"몽환적"},
+  {color:"#FDE68A",bg:"linear-gradient(145deg,#78350F,#D97706,#FEF3C7)",name:"따뜻함"},
+  {color:"#A7F3D0",bg:"linear-gradient(145deg,#022C22,#059669,#D1FAE5)",name:"평화로움"},
+  {color:"#FECACA",bg:"linear-gradient(145deg,#450A0A,#DC2626,#FEE2E2)",name:"긴장감"},
+  {color:"#BAE6FD",bg:"linear-gradient(145deg,#082F49,#0284C7,#E0F2FE)",name:"차분함"},
+  {color:"#FBCFE8",bg:"linear-gradient(145deg,#500724,#BE185D,#FCE7F3)",name:"설렘"}
+];
+var BADGES=[
+  {id:"first",e:"🌱",name:"첫 기록",ok:function(d){return fl(d).length>=1;}},
+  {id:"week",e:"🔥",name:"7일 연속",ok:function(d){return calcStreak(d)>=7;}},
+  {id:"lucid",e:"✨",name:"루시드",ok:function(d){return fl(d).filter(function(x){return x.isLucid;}).length>=5;}},
+  {id:"good",e:"🌟",name:"길몽 마스터",ok:function(d){return fl(d).filter(function(x){return x.type==="good";}).length>=10;}},
+  {id:"repeat",e:"🔁",name:"반복꿈 탐정",ok:function(d){return findRepeats(d).length>0;}},
+  {id:"thirty",e:"📚",name:"30일 기록왕",ok:function(d){return fl(d).length>=30;}},
+  {id:"card",e:"🎴",name:"카드 아티스트",ok:function(){return parseInt(localStorage.getItem("dct_cards")||"0")>=1;}}
+];
+var LV_NAMES=["DREAM SEED","DREAM EXPLORER","LUCID DREAMER","DREAM MASTER","DREAM SAGE"];
+var MONTHS=["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+var WDAYS=["일","월","화","수","목","금","토"];
+var FB={
+  sky:"하늘을 나는 꿈은 현실의 제약을 벗어나고 싶은 자유 의지의 표현이에요. 무의식 속에서 새로운 가능성을 찾고 있다는 신호예요. 오늘 두려움 없이 새로운 도전을 해봐요 🚀",
+  chase:"추격을 당하는 꿈은 현실에서 직면하기 어려운 감정이나 상황을 피하고 싶은 마음을 반영해요. 용기 내어 마주하면 오히려 좋은 결과가 생길 거예요 💪",
+  place:"낯선 장소는 삶의 새로운 국면이 열리고 있다는 신호예요. 변화를 두려워하지 말고 새로운 환경을 탐색해보세요. 기회가 찾아오고 있어요 🚪",
+  nested:"꿈 속의 꿈은 깊은 내면의 탐구를 나타내요. 통찰력과 직감이 극도로 예민해진 상태예요. 오늘 직감을 믿고 행동하면 좋은 결과가 따를 거예요 🎯",
+  water:"물은 감정과 무의식을 상징해요. 물의 상태로 감정 상태를 알 수 있어요. 솔직하게 자신의 감정을 표현할수록 마음이 편안해질 거예요 🌊",
+  family:"가족이 등장하는 꿈은 안정과 소속감, 사랑의 에너지를 나타내요. 소중한 사람과의 유대가 필요한 시기예요. 오늘 가까운 사람에게 먼저 연락해봐요 💛",
+  monster:"괴물 꿈은 내면의 두려움이나 극복하고 싶은 장애물을 상징해요. 꿈에서 괴물을 마주쳤다는 것 자체가 이미 용기 있는 행동이에요. 오늘 당신이 주인공 🦸",
+  treasure:"보물 발견은 숨겨진 재능이나 가능성을 발견할 때가 됐다는 신호예요. 뜻밖의 좋은 소식이나 기회가 찾아올 수 있어요 💎",
+  exam:"시험 꿈은 자신을 검증하고 싶은 욕구와 성취에 대한 열망을 나타내요. 준비된 만큼 실력을 발휘할 수 있는 기회가 찾아올 거예요 📚",
+  love:"연애 꿈은 감정적 에너지가 충만하고 인연에 대한 기대감이 높아진 상태예요. 오늘 특별한 만남이나 설레는 순간이 찾아올지도 몰라요 💕"
+};
+var FBD="오늘 꿈은 무의식이 보내는 특별한 메시지를 담고 있어요. 꿈의 감정과 분위기를 떠올리며 하루를 시작해보세요 ✨";
+var SK="dct_v9";
+
+// ── 유틸 ──
+function dk(y,m,d){return y+"-"+("0"+(m+1)).slice(-2)+"-"+("0"+d).slice(-2);}
+function tdk(){var d=new Date();return dk(d.getFullYear(),d.getMonth(),d.getDate());}
+function daysIn(y,m){return new Date(y,m+1,0).getDate();}
+function firstWd(y,m){return new Date(y,m,1).getDay();}
+function fl(d){var r=[];Object.values(d).forEach(function(a){a.forEach(function(x){r.push(x);});});return r;}
+function calcStreak(dreams){
+  var s=0,t=new Date();
+  for(var i=0;i<365;i++){
+    var dd=new Date(t);dd.setDate(dd.getDate()-i);
+    var k=dk(dd.getFullYear(),dd.getMonth(),dd.getDate());
+    if(dreams[k]&&dreams[k].length)s++;else break;
+  }
+  return s;
+}
+function findRepeats(dreams){
+  var c={};
+  fl(dreams).forEach(function(d){if(d.tag)c[d.tag]=(c[d.tag]||0)+1;});
+  return Object.entries(c).filter(function(e){return e[1]>=3;}).map(function(e){return e[0];});
+}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function hlText(text,q){
+  if(!q||!text)return esc(text||"");
+  var idx=text.indexOf(q);
+  if(idx===-1)return esc(text);
+  return esc(text.slice(0,idx))+'<mark style="background:rgba(155,189,232,.4);border-radius:3px;padding:0 2px;color:#4A6EAA">'+esc(text.slice(idx,idx+q.length))+'</mark>'+esc(text.slice(idx+q.length));
+}
+function getDot(k){
+  var l=S.dreams[k];if(!l||!l.length)return null;
+  if(l.some(function(d){return d.type==="good";}))return"#FDE68A";
+  if(l.some(function(d){return d.type==="bad";}))return"#FECACA";
+  return MOODS[(l[l.length-1].moodIdx||0)].color;
+}
+
+// ── 저장 ──
+function saveDreams(){try{localStorage.setItem(SK,JSON.stringify(S.dreams));}catch(e){}}
+function loadDreams(){try{var r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}return{};}
+
+// ── API ──
+function getKey(){return window.__DCT_KEY||"";}
+function saveApiKey(){
+  var k=document.getElementById("api-input").value.trim();
+  if(k){window.__DCT_KEY=k;localStorage.setItem("dct_apikey",k);document.getElementById("api-banner").classList.add("hidden");showToast("✦ API KEY 저장됐어요!");}
+}
+(function(){var s=localStorage.getItem("dct_apikey");if(s){window.__DCT_KEY=s;document.getElementById("api-banner").classList.add("hidden");}})();
+
+function aiCall(prompt,maxTok,callback){
+  var key=getKey();
+  if(!key){callback(null,"NO_KEY");return;}
+  var xhr=new XMLHttpRequest();
+  xhr.open("POST","https://api.anthropic.com/v1/messages",true);
+  xhr.setRequestHeader("Content-Type","application/json");
+  xhr.setRequestHeader("x-api-key",key);
+  xhr.setRequestHeader("anthropic-version","2023-06-01");
+  xhr.setRequestHeader("anthropic-dangerous-direct-browser-access","true");
+  xhr.onload=function(){
+    if(xhr.status===200){
+      try{
+        var d=JSON.parse(xhr.responseText);
+        callback(d.content[0].text.trim(),null);
+      }catch(e){callback(null,e.toString());}
+    }else{callback(null,"HTTP "+xhr.status);}
+  };
+  xhr.onerror=function(){callback(null,"Network error");};
+  xhr.send(JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTok||200,messages:[{role:"user",content:prompt}]}));
+}
+
+// ── 상태 ──
+var S={
+  dreams:loadDreams(),
+  tab:"record",
+  dtype:"normal",selTag:null,lucid:false,content:"",
+  haemong:"",story:"",playlist:null,
+  aiTab:"haemong",
+  cal:{y:new Date().getFullYear(),m:new Date().getMonth()},
+  selDay:null,searchQ:"",
+  voiceText:"",cardPngUrl:null,cardDream:null,
+  ldH:false,ldS:false,ldP:false
+};
+
+// ── 토스트 ──
+var toastTimer=null;
+function showToast(msg){
+  var el=document.getElementById("toast");
+  el.textContent=msg;el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){el.classList.remove("show");},2200);
+}
+
+// ── 인트로 세팅 ──
+document.getElementById("intro-date").textContent=new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+(function(){
+  var intro=document.getElementById("intro");
+  for(var i=0;i<55;i++){
+    var s=document.createElement("div");s.className="star";
+    var sz=Math.random()*2+0.4;
+    s.style.cssText="left:"+Math.random()*100+"%;top:"+Math.random()*100+"%;width:"+sz+"px;height:"+sz+"px;animation-duration:"+(Math.random()*4+2.5)+"s;animation-delay:"+(Math.random()*7)+"s";
+    intro.appendChild(s);
+  }
+  for(var j=0;j<3;j++){
+    var sh=document.createElement("div");sh.className="shoot";
+    sh.style.cssText="left:"+(15+j*30)+"%;top:"+(5+j*8)+"%;width:80px;animation-delay:"+(j*3+1)+"s";
+    intro.appendChild(sh);
+  }
+})();
+
+function showIntro(){
+  document.getElementById("app").style.display="none";
+  document.getElementById("intro").style.display="flex";
+  resetMicUI();
+}
+function goMain(voiceText){
+  document.getElementById("intro").style.display="none";
+  var app=document.getElementById("app");
+  app.style.display="block";
+  if(voiceText){S.content=voiceText;S.tab="record";}
+  render();
+}
+
+// ── 음성 ──
+var recObj=null,recInt=null,recSec=0;
+function startRec(){
+  if(!("webkitSpeechRecognition" in window||"SpeechRecognition" in window)){alert("Chrome 브라우저에서 열어주세요!");return;}
+  document.getElementById("mic-idle").style.display="none";
+  document.getElementById("press-start").style.display="none";
+  var mr=document.getElementById("mic-recording");
+  mr.style.display="flex";mr.style.flexDirection="column";mr.style.alignItems="center";
+  recSec=0;updateTimer();
+  recInt=setInterval(function(){recSec++;updateTimer();},1000);
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recObj=new SR();recObj.lang="ko-KR";recObj.continuous=false;recObj.interimResults=true;
+  recObj.onresult=function(e){
+    var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join("");
+    var p=document.getElementById("rec-preview");p.textContent=t;p.style.display="block";S.voiceText=t;
+  };
+  recObj.onend=function(){clearInterval(recInt);showRecResult();};
+  recObj.onerror=function(){clearInterval(recInt);resetMicUI();};
+  recObj.start();
+}
+function updateTimer(){
+  var m=("0"+Math.floor(recSec/60)).slice(-2),sec=("0"+(recSec%60)).slice(-2);
+  document.getElementById("rec-timer").textContent="REC "+m+":"+sec;
+}
+function showRecResult(){
+  document.getElementById("mic-recording").style.display="none";
+  document.getElementById("voice-text-el").textContent=S.voiceText||"(인식된 텍스트 없음)";
+  document.getElementById("mic-result").style.display="block";
+}
+function saveVoice(){goMain(S.voiceText);}
+function redoRec(){S.voiceText="";resetMicUI();}
+function resetMicUI(){
+  var mi=document.getElementById("mic-idle");
+  mi.style.display="flex";mi.style.flexDirection="column";mi.style.alignItems="center";
+  document.getElementById("mic-recording").style.display="none";
+  document.getElementById("mic-result").style.display="none";
+  document.getElementById("press-start").style.display="block";
+  if(recObj){try{recObj.stop();}catch(e){}}
+  clearInterval(recInt);
+}
+
+// ── 탭 전환 ──
+function switchTab(tab){
+  S.tab=tab;S.selDay=null;S.searchQ="";
+  var tabBtns=document.querySelectorAll(".tab-btn");
+  var tabIds=["record","calendar","stats"];
+  tabBtns.forEach(function(b,i){b.classList.toggle("active",tabIds[i]===tab);});
+  var paneIds=["tab-record","tab-calendar","tab-stats"];
+  paneIds.forEach(function(id,i){
+    var el=document.getElementById(id);
+    if(!el)return;
+    var isA=tabIds[i]===tab;
+    el.classList.toggle("active",isA);
+    el.style.display=isA?"flex":"none";
+    if(isA){el.style.flexDirection="column";el.style.gap="10px";}
+  });
+  render();
+}
+
+// ── 렌더 ──
+function render(){
+  renderHeader();
+  if(S.tab==="record")renderRecord();
+  else if(S.tab==="calendar")renderCalendar();
+  else renderStats();
+}
+function renderHeader(){
+  var lv=Math.min(4,Math.floor(fl(S.dreams).length/10));
+  document.getElementById("lv-chip").textContent="LV."+(lv+1);
+}
+
+// ── 기록 탭 ──
+function renderRecord(){
+  var todayList=S.dreams[tdk()]||[];
+  var reps=findRepeats(S.dreams);
+  var hasInput=S.content.trim()||S.selTag;
+  var html="";
+
+  if(reps.length>0){
+    var names=reps.map(function(r){var t=TAGS.find(function(x){return x.id===r;});return t?t.l:r;}).join(", ");
+    html+='<div style="background:linear-gradient(110deg,#7C6FD4,#9BBDE8);border-radius:14px;border:1.5px solid #5B50B8;padding:10px 14px;display:flex;align-items:center;gap:10px">';
+    html+='<span style="font-family:var(--px);font-size:10px;color:#FDE68A">!!</span>';
+    html+='<div style="flex:1"><div style="font-family:var(--px);font-size:8px;color:#fff;margin-bottom:2px">REPEAT DREAM</div>';
+    html+='<div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.85)">'+esc(names)+' 꿈을 자주 꾸고 있어요</div></div>';
+    html+='<span style="font-family:var(--px);font-size:7px;color:#78350F;background:#FDE68A;border:1.5px solid #B45309;border-radius:5px;padding:2px 7px">'+reps.length+'종류</span></div>';
+  }
+
+  html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">🎮</span><span class="card-hdr-title">SELECT DREAM TYPE</span></div>';
+  html+='<div class="card-body"><div class="type-grid">';
+  [{v:"good",e:"🌟",l:"GOOD"},{v:"normal",e:"💭",l:"NORMAL"},{v:"bad",e:"🌩",l:"BAD"}].forEach(function(t){
+    html+='<button class="type-btn '+(S.dtype===t.v?"sel-"+t.v:"")+'" onclick="setDtype(\''+t.v+'\')">';
+    html+='<span class="type-em">'+t.e+'</span><span class="type-lbl">'+t.l+'</span></button>';
+  });
+  html+='</div></div></div>';
+
+  html+='<div class="card"><div class="card-body" style="display:flex;align-items:center;justify-content:space-between">';
+  html+='<span style="font-family:var(--px);font-size:8px;color:var(--lav);letter-spacing:.5px">✦ LUCID DREAM?</span>';
+  html+='<div class="toggle '+(S.lucid?"on":"") +'" onclick="toggleLucid()"><div class="toggle-knob"></div></div>';
+  html+='</div></div>';
+
+  html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">🏷</span><span class="card-hdr-title">KEYWORD TAG</span></div>';
+  html+='<div class="card-body"><div class="tag-wrap">';
+  TAGS.forEach(function(t){
+    html+='<button class="tag-pill '+(S.selTag===t.id?"sel":"")+'" onclick="setTag(\''+t.id+'\')">'+t.e+' '+t.l+'</button>';
+  });
+  html+='</div></div></div>';
+
+  html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">✏️</span><span class="card-hdr-title">DREAM LOG</span></div>';
+  html+='<div class="card-body"><textarea class="dream-ta" rows="3" placeholder="기억나는 장면을 적어보세요..." oninput="S.content=this.value;refreshSaveBtn()">'+esc(S.content)+'</textarea></div></div>';
+
+  html+='<div class="card"><div class="ai-tabs">';
+  [{id:"haemong",l:"🔮 해몽"},{id:"story",l:"📖 동화"},{id:"music",l:"🎵 음악"}].forEach(function(t,i){
+    html+='<div class="ai-tab'+(S.aiTab===t.id?" active":"")+'"'+(i<2?' style="border-right:1.5px solid var(--bdr)"':'')+' onclick="setAiTab(\''+t.id+'\')">'+t.l+'</div>';
+  });
+  html+='</div><div class="ai-body">';
+
+  html+='<div id="ai-haemong" class="ai-pane'+(S.aiTab==="haemong"?" active":"")+'">';
+  html+='<button class="ai-run-btn" onclick="doHaemong()">'+(S.ldH?'<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> LOADING...':'⚡ AI 해몽하기')+'</button>';
+  html+='<p class="'+(S.haemong?"ai-txt":"ai-ph")+'">'+(S.haemong?esc(S.haemong):"키워드나 내용을 입력하고 해몽을 받아보세요 🔮")+'</p></div>';
+
+  html+='<div id="ai-story" class="ai-pane'+(S.aiTab==="story"?" active":"")+'">';
+  html+='<button class="ai-run-btn" onclick="doStory()">'+(S.ldS?'<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> WRITING...':'📖 AI 동화 생성')+'</button>';
+  html+='<p class="'+(S.story?"ai-txt":"ai-ph")+'"'+(S.story?' style="font-style:italic"':'')+'>'+( S.story?esc(S.story):"꿈을 바탕으로 짧은 동화를 써드려요 ✨")+'</p></div>';
+
+  html+='<div id="ai-music" class="ai-pane'+(S.aiTab==="music"?" active":"")+'">';
+  html+='<button class="ai-run-btn" onclick="doPlaylist()">'+(S.ldP?'<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> LOADING...':'🎵 플레이리스트 생성')+'</button>';
+  if(S.playlist){
+    html+='<p style="font-family:var(--px);font-size:9px;color:#4A4090;margin-bottom:3px">'+esc(S.playlist.title)+'</p>';
+    html+='<p style="font-size:11px;color:#9B90E8;margin-bottom:10px;font-style:italic;font-weight:600">'+esc(S.playlist.vibe)+'</p>';
+    S.playlist.tracks.forEach(function(tr,i){
+      var slink=S.playlist.spotifyLinks&&S.playlist.spotifyLinks[i]?S.playlist.spotifyLinks[i]:"https://open.spotify.com/search/"+encodeURIComponent(tr);
+      html+='<a href="'+slink+'" target="_blank" style="text-decoration:none;display:block">';
+      html+='<div class="track-item" style="cursor:pointer"><span class="track-num">'+(i+1)+'</span><span class="track-name">'+esc(tr)+'</span><span style="font-size:15px;margin-left:auto">🎧</span></div></a>';
+    });
+    var spLink="https://open.spotify.com/search/"+encodeURIComponent(S.playlist.spotifySearch||S.playlist.title);
+    html+='<a href="'+spLink+'" target="_blank" class="spotify-all-btn">🎵 Spotify에서 전체 듣기</a>';
+  }else{
+    html+='<p class="ai-ph">꿈 분위기에 맞는 Spotify 음악을 추천해드려요 🎵</p>';
+  }
+  html+='</div></div></div>';
+
+  html+='<button class="save-btn" onclick="saveDream()"'+(hasInput?'':' disabled')+'>'+( hasInput?"★ SAVE DREAM ★":"― ENTER DREAM FIRST ―")+'</button>';
+
+  if(todayList.length>0){
+    html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">📂</span><span class="card-hdr-title">TODAY LOG — '+todayList.length+'개</span></div><div class="card-body">';
+    todayList.forEach(function(d){
+      var tg=TAGS.find(function(t){return t.id===d.tag;});
+      html+='<div class="today-item"><div class="today-row">';
+      html+='<span style="font-size:17px">'+(d.type==="good"?"🌟":d.type==="bad"?"🌩":"💭")+'</span>';
+      if(tg)html+='<span class="mini-tag">'+tg.e+' '+tg.l+'</span>';
+      if(d.isLucid)html+='<span class="mini-tag">✦ LUCID</span>';
+      html+='<button class="card-make-btn" onclick="openCardModal('+d.id+')">🎴 CARD</button>';
+      html+='</div>';
+      if(d.content)html+='<p style="font-size:12px;font-weight:700;color:#3D3580;line-height:1.65;margin-bottom:3px">'+esc(d.content)+'</p>';
+      if(d.haemong)html+='<p style="font-size:11px;font-weight:600;color:#9B90E8;font-style:italic;line-height:1.6">'+esc(d.haemong.slice(0,60))+(d.haemong.length>60?"…":"")+'</p>';
+      html+='<button class="del-btn" onclick="delDream(\''+tdk()+'\','+d.id+')">✕</button></div>';
+    });
+    html+='</div></div>';
+  }
+  document.getElementById("tab-record").innerHTML=html;
+}
+
+function refreshSaveBtn(){var b=document.querySelector(".save-btn");if(!b)return;var h=S.content.trim()||S.selTag;b.disabled=!h;b.textContent=h?"★ SAVE DREAM ★":"― ENTER DREAM FIRST ―";}
+function setDtype(v){S.dtype=v;renderRecord();}
+function toggleLucid(){S.lucid=!S.lucid;renderRecord();}
+function setTag(id){S.selTag=S.selTag===id?null:id;renderRecord();}
+function setAiTab(id){S.aiTab=id;renderRecord();}
+
+function doHaemong(){
+  if(S.ldH)return;S.ldH=true;S.haemong="";renderRecord();
+  var t=TAGS.find(function(x){return x.id===S.selTag;});
+  var dl=S.dtype==="good"?"길몽":S.dtype==="bad"?"악몽":"일반 꿈";
+  var prompt="당신은 한국의 감성적이고 따뜻한 꿈 해몽사입니다.\n아래 꿈 정보를 바탕으로 심리적 의미와 긍정적인 메시지를 담은 해몽을 해주세요.\n- 꿈의 상징과 심리적 의미를 1문장으로\n- 현실에서의 조언이나 오늘의 운세를 1~2문장으로\n- 이모지 1~2개 자연스럽게 포함\n- 전체 3~4문장, 친근하고 따뜻한 말투\n\n꿈 유형: "+dl+"\n키워드: "+(t?t.e+" "+t.l:"없음")+"\n자각몽 여부: "+(S.lucid?"자각몽이었음":"일반 꿈")+"\n꿈 내용: "+(S.content||"기억이 흐릿한 꿈")+"\n\n해몽:";
+  aiCall(prompt,300,function(res,err){
+    S.haemong=res||(S.selTag?FB[S.selTag]:FBD);S.ldH=false;renderRecord();
+  });
+}
+function doStory(){
+  if(S.ldS)return;S.ldS=true;S.story="";renderRecord();
+  var t=TAGS.find(function(x){return x.id===S.selTag;});
+  var prompt="당신은 한국의 감성적인 동화 작가입니다.\n아래 꿈 내용을 바탕으로 짧고 아름다운 동화 한 단락을 써주세요.\n- 서정적인 과거형 문체\n- 꿈의 분위기와 감정을 살려서\n- 3~4문장, 마지막 문장은 여운이 남게\n- 직접 인용이나 대화 없이 서술형으로\n\n꿈 키워드: "+(t?t.e+" "+t.l:"흐릿한 꿈")+"\n꿈 내용: "+(S.content||"기억이 흐릿한 꿈")+"\n\n동화:";
+  aiCall(prompt,350,function(res,err){
+    S.story=res||"꿈 속에서 이야기가 흘러갔다...";S.ldS=false;renderRecord();
+  });
+}
+function doPlaylist(){
+  if(S.ldP)return;S.ldP=true;S.playlist=null;renderRecord();
+  var t=TAGS.find(function(x){return x.id===S.selTag;});
+  var md=S.dtype==="good"?"행복하고 설레는 기분의 길몽":S.dtype==="bad"?"긴장되고 무거운 악몽":"잔잔하고 몽환적인 일반 꿈";
+  var prompt="당신은 Spotify에서 활동하는 감각적인 음악 큐레이터입니다.\n아래 꿈의 분위기에 딱 맞는 실제 인기 곡 5개를 추천해주세요.\nK-POP, 팝, 인디, R&B 등 장르 불문하고 분위기에 맞는 곡으로 골라주세요.\n실제로 존재하는 곡만 추천하고 최근 2-3년 이내 인기곡을 우선으로 해주세요.\n\n꿈 분위기: "+md+"\n꿈 키워드: "+(t?t.e+" "+t.l:"없음")+"\n꿈 내용 힌트: "+(S.content?S.content.slice(0,60):"없음")+"\n\n정확히 아래 형식으로만 답하세요:\nTITLE: [한국어 플레이리스트 이름]\nVIBE: [분위기 한 줄]\n1. [곡명] - [아티스트]\n2. [곡명] - [아티스트]\n3. [곡명] - [아티스트]\n4. [곡명] - [아티스트]\n5. [곡명] - [아티스트]\nSPOTIFY: [Spotify 검색용 영어 키워드]";
+  aiCall(prompt,450,function(res,err){
+    if(res){
+      var lines=res.split("\n").map(function(l){return l.trim();}).filter(Boolean);
+      var tracks=lines.filter(function(l){return /^\d\./.test(l);}).map(function(l){return l.replace(/^\d\.\s*/,"");});
+      var spKw=(lines.find(function(l){return l.startsWith("SPOTIFY:");}))||"";
+      if(spKw)spKw=spKw.slice(8).trim();
+      S.playlist={
+        title:(lines.find(function(l){return l.startsWith("TITLE:");}))||"드림 플레이리스트",
+        vibe:(lines.find(function(l){return l.startsWith("VIBE:");}))||"",
+        tracks:tracks,
+        spotifySearch:spKw||"dream chill kpop",
+        spotifyLinks:tracks.map(function(tr){return "https://open.spotify.com/search/"+encodeURIComponent(tr);})
+      };
+      if(S.playlist.title.startsWith("TITLE:"))S.playlist.title=S.playlist.title.slice(6).trim();
+      if(S.playlist.vibe.startsWith("VIBE:"))S.playlist.vibe=S.playlist.vibe.slice(5).trim();
+    }else{
+      S.playlist={title:"드림 플레이리스트",vibe:"꿈에 어울리는 음악",tracks:["Magnetic - ILLIT","Supernova - aespa","SPOT! - ZICO","How Sweet - NewJeans","Sticky - KISS OF LIFE"],spotifySearch:"K-POP dream chill 2024",spotifyLinks:["https://open.spotify.com/search/Magnetic%20ILLIT","https://open.spotify.com/search/Supernova%20aespa","https://open.spotify.com/search/SPOT%20ZICO","https://open.spotify.com/search/How%20Sweet%20NewJeans","https://open.spotify.com/search/Sticky%20KISS%20OF%20LIFE"]};
+    }
+    S.ldP=false;renderRecord();
+  });
+}
+
+function saveDream(){
+  if(!S.content.trim()&&!S.selTag)return;
+  var d={id:Date.now(),date:tdk(),content:S.content,type:S.dtype,isLucid:S.lucid,tag:S.selTag,moodIdx:0,haemong:S.haemong||(S.selTag?FB[S.selTag]:FBD),story:S.story,playlist:S.playlist};
+  if(!S.dreams[tdk()])S.dreams[tdk()]=[];
+  S.dreams[tdk()].push(d);
+  saveDreams();
+  // DB에도 저장
+  saveDreamToDB(d, function(saved){
+    if(saved){
+      // DB에서 받은 UUID로 id 교체
+      var list = S.dreams[tdk()];
+      var idx = list.findIndex(function(x){return x.id === d.id;});
+      if(idx !== -1) list[idx].id = saved.id;
+    }
+  });
+  S.content="";S.selTag=null;S.lucid=false;S.dtype="normal";S.haemong="";S.story="";S.playlist=null;
+  showToast("★ DREAM SAVED!");
+  switchTab("calendar");
+}
+function delDream(date,id){
+  // UUID 형태면 문자열 비교, 숫자면 숫자 비교
+  S.dreams[date]=(S.dreams[date]||[]).filter(function(d){return String(d.id)!==String(id);});
+  if(!S.dreams[date].length)delete S.dreams[date];
+  saveDreams();
+  deleteDreamFromDB(id, function(){});
+  renderRecord();
+}
+
+// ── 달력 탭 ──
+function renderCalendar(){
+  var reps=findRepeats(S.dreams);
+  var html="";
+  html+='<div class="search-bar"><span style="font-size:16px">🔍</span><input type="text" value="'+esc(S.searchQ)+'" placeholder="꿈 내용, 키워드로 검색..." oninput="S.searchQ=this.value;renderCalendar()"/>'+(S.searchQ?'<button class="search-clear" onclick="S.searchQ=\'\';renderCalendar()">✕</button>':'')+' </div>';
+
+  if(S.searchQ.trim().length>=1){
+    var q=S.searchQ.trim();
+    var results=fl(S.dreams).filter(function(d){return (d.content||"").includes(q)||(TAGS.find(function(t){return t.id===d.tag;})||{l:""}).l.includes(q)||(d.haemong||"").includes(q);}).sort(function(a,b){return b.date.localeCompare(a.date);});
+    html+='<p style="font-family:var(--px);font-size:8px;color:#9898C8;margin:4px 0 7px;letter-spacing:.5px">검색 결과 '+results.length+'건</p>';
+    if(!results.length)html+='<div style="text-align:center;padding:20px;color:#C0B8DC;font-size:12px;font-weight:600">검색 결과가 없어요 🌙</div>';
+    results.forEach(function(d){
+      var tg=TAGS.find(function(t){return t.id===d.tag;});
+      html+='<div style="background:rgba(255,255,255,.75);border:1.5px solid var(--bdr);border-radius:14px;padding:11px 13px;margin-bottom:8px">';
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:15px">'+(d.type==="good"?"🌟":d.type==="bad"?"🌩":"💭")+'</span>';
+      html+='<span style="font-family:var(--px);font-size:8px;color:#9898C8">'+d.date+'</span>';
+      if(tg)html+='<span style="font-size:10px;padding:1px 8px;border-radius:10px;background:rgba(124,111,212,.12);color:var(--lav);border:1px solid rgba(124,111,212,.25);font-weight:700">'+tg.e+' '+tg.l+'</span>';
+      html+='</div>';
+      if(d.content)html+='<p style="font-size:12px;font-weight:600;color:#3D3580;line-height:1.6;margin:0 0 3px">'+hlText(d.content,q)+'</p>';
+      if(d.haemong)html+='<p style="font-size:11px;color:var(--lav);font-style:italic;line-height:1.5;margin:0">'+hlText(d.haemong.slice(0,60),q)+(d.haemong.length>60?"…":"")+'</p>';
+      html+='</div>';
+    });
+    document.getElementById("tab-calendar").innerHTML=html;return;
+  }
+
+  if(reps.length>0){
+    var tc={};fl(S.dreams).forEach(function(d){if(d.tag)tc[d.tag]=(tc[d.tag]||0)+1;});
+    html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">🔁</span><span class="card-hdr-title">REPEAT PATTERN</span><span style="font-family:var(--px);font-size:7px;color:var(--lav);background:rgba(200,198,247,.4);border:1.5px solid var(--bdr);border-radius:6px;padding:2px 7px;margin-left:auto">AI 분석</span></div>';
+    html+='<div class="card-body">';
+    reps.forEach(function(r){
+      var t=TAGS.find(function(x){return x.id===r;}),cnt=tc[r]||0;
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(245,243,255,.8);border-radius:10px;padding:7px 10px;margin-bottom:6px;border:1px solid var(--bdr2)">';
+      html+='<span style="font-size:12px;font-weight:800;color:#3D3580">'+(t?t.e+" "+t.l:r)+'</span>';
+      html+='<div style="display:flex;align-items:center;gap:7px"><div style="width:52px;height:5px;background:rgba(180,170,240,.2);border-radius:3px"><div style="height:5px;background:linear-gradient(90deg,var(--lav),var(--sky));border-radius:3px;width:'+Math.min(cnt/8*100,100)+'%"></div></div>';
+      html+='<span style="font-family:var(--px);font-size:8px;color:var(--lav)">'+cnt+'회</span></div></div>';
+    });
+    html+='<div style="margin-top:6px;padding:8px 10px;background:rgba(200,210,255,.2);border-radius:10px;border-left:3px solid var(--lavm);font-size:12px;font-weight:700;color:#6658B8;line-height:1.7;font-style:italic">"반복되는 꿈은 무의식의 메시지예요. 어떤 감정을 자주 느끼는지 돌아보세요."</div>';
+    html+='</div></div>';
+  }
+
+  html+='<div class="card"><div class="card-body">';
+  html+='<div class="cal-nav"><button class="cal-nav-btn" onclick="moveMonth(-1)">‹</button><span class="cal-month">'+S.cal.y+'년 '+MONTHS[S.cal.m]+'</span><button class="cal-nav-btn" onclick="moveMonth(1)">›</button></div>';
+  html+='<div class="cal-grid">';
+  WDAYS.forEach(function(d,i){html+='<div class="cal-dh'+(i===0?" sun":i===6?" sat":"")+'">'+d+'</div>';});
+  for(var e=0;e<firstWd(S.cal.y,S.cal.m);e++)html+='<div></div>';
+  var days=daysIn(S.cal.y,S.cal.m);
+  for(var day=1;day<=days;day++){
+    var k=dk(S.cal.y,S.cal.m,day),dot=getDot(k),isT=k===tdk(),isSel=S.selDay===k;
+    html+='<div class="cal-day'+(isT?" today":"")+(isSel?" sel":"")+'" onclick="selectDay(\''+k+'\')">';
+    html+='<span class="cal-num">'+day+'</span>';
+    if(dot)html+='<div class="cal-dot" style="background:'+dot+'"></div>';
+    html+='</div>';
+  }
+  html+='</div>';
+  html+='<div class="cal-legend"><div class="leg"><div class="cal-dot" style="background:#FDE68A;width:7px;height:7px"></div>길몽</div><div class="leg"><div class="cal-dot" style="background:#FECACA;width:7px;height:7px"></div>악몽</div><div class="leg"><div class="cal-dot" style="background:#D8B4FE;width:7px;height:7px"></div>일반</div></div>';
+  html+='</div></div>';
+
+  if(S.selDay){
+    var dayDreams=S.dreams[S.selDay]||[];
+    html+='<p style="font-family:var(--px);font-size:9px;color:var(--lavd);margin-bottom:7px;letter-spacing:.5px">✦ '+S.selDay.replace(/-/g,".")+" LOG</p>";
+    if(!dayDreams.length){html+='<div style="text-align:center;padding:16px;color:#C0B8DC;font-family:var(--px);font-size:8px">NO RECORDS 🌙</div>';}
+    dayDreams.forEach(function(d){
+      var tg=TAGS.find(function(t){return t.id===d.tag;});
+      html+='<div class="card" style="padding:11px 13px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap">';
+      html+='<span style="font-size:17px">'+(d.type==="good"?"🌟":d.type==="bad"?"🌩":"💭")+'</span>';
+      if(tg)html+='<span class="mini-tag">'+tg.e+' '+tg.l+'</span>';
+      if(d.isLucid)html+='<span class="mini-tag">✦ LUCID</span>';
+      html+='<button class="card-make-btn" onclick="openCardModal('+d.id+')">🎴 CARD</button>';
+      html+='</div>';
+      if(d.content)html+='<p style="font-size:12px;font-weight:700;color:#3D3580;line-height:1.65;margin-bottom:4px">'+esc(d.content)+'</p>';
+      if(d.haemong)html+='<p style="font-size:11px;font-weight:600;color:var(--lav);font-style:italic;line-height:1.65">'+esc(d.haemong)+'</p>';
+      html+='</div>';
+    });
+  }
+  document.getElementById("tab-calendar").innerHTML=html;
+}
+function moveMonth(dir){S.cal.m+=dir;if(S.cal.m<0){S.cal.m=11;S.cal.y--;}else if(S.cal.m>11){S.cal.m=0;S.cal.y++;}S.selDay=null;renderCalendar();}
+function selectDay(k){S.selDay=S.selDay===k?null:k;renderCalendar();}
+
+// ── 통계 탭 ──
+function renderStats(){
+  var all=fl(S.dreams),total=all.length;
+  var lv=Math.min(4,Math.floor(total/10)),lvXP=total%10;
+  var cs=calcStreak(S.dreams);
+  var md=[];
+  Object.entries(S.dreams).forEach(function(e){var ym=e[0].split("-").map(Number);if(ym[0]===S.cal.y&&ym[1]===S.cal.m+1)e[1].forEach(function(d){md.push(d);});});
+  var earned=BADGES.filter(function(b){return b.ok(S.dreams);});
+  var tc={};all.forEach(function(d){if(d.tag)tc[d.tag]=(tc[d.tag]||0)+1;});
+  var wc=Object.entries(tc).sort(function(a,b){return b[1]-a[1];});
+  var todayList=S.dreams[tdk()]||[];
+  var html="";
+
+  html+='<div class="lv-card"><div class="lv-top"><div class="lv-av">🌙</div><div style="flex:1"><div class="lv-name">'+LV_NAMES[lv]+'</div><div class="lv-sub">다음 레벨까지 '+(10-lvXP)+'개 더!</div></div><div class="lv-num">'+(lv+1)+'</div></div>';
+  html+='<div class="lv-bar-bg"><div class="lv-bar-fill" style="width:'+(lvXP*10)+'%"></div></div>';
+  html+='<div class="lv-labels"><span class="lv-lbl">'+total+' XP</span><span class="lv-lbl">'+(lv<4?LV_NAMES[lv+1]:"MAX LEVEL 🌌")+'</span></div></div>';
+
+  html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">🏆</span><span class="card-hdr-title">ACHIEVEMENTS</span></div><div class="card-body"><div class="badge-row">';
+  BADGES.forEach(function(b){
+    var ok=earned.some(function(x){return x.id===b.id;});
+    html+='<div class="badge-item"><div class="badge-icon '+(ok?"earned":"locked")+'">'+b.e+'</div><div class="badge-name'+(ok?"":" locked")+'">'+b.name+'</div></div>';
+  });
+  html+='</div></div></div>';
+
+  html+='<div class="stat3">';
+  [{e:"📖",l:"꿈 기록",v:md.length},{e:"🔥",l:"연속",v:cs+"일"},{e:"✦",l:"자각몽",v:md.filter(function(d){return d.isLucid;}).length+"회"}].forEach(function(c){
+    html+='<div class="stat-card"><div class="stat-em">'+c.e+'</div><div class="stat-val">'+c.v+'</div><div class="stat-lbl">'+c.l+'</div></div>';
+  });
+  html+='</div>';
+
+  if(wc.length>0){
+    html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">☁️</span><span class="card-hdr-title">KEYWORD CLOUD</span></div><div class="card-body"><div class="wc-wrap">';
+    wc.forEach(function(e){
+      var t=TAGS.find(function(x){return x.id===e[0];}),sz=11+Math.min(e[1],8)*2;
+      html+='<span class="wc-word" style="font-size:'+sz+'px;padding:'+(4+e[1])+'px '+(9+e[1]*2)+'px">'+(t?t.e+" "+t.l:e[0])+'</span>';
+    });
+    html+='</div></div></div>';
+  }
+
+  html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">💾</span><span class="card-hdr-title">EXPORT</span></div><div class="card-body">';
+  html+='<button class="exp-btn" onclick="copyAll()"><div class="exp-ic" style="background:#FFF0F9">📋</div><div><div class="exp-title">TEXT COPY</div><div class="exp-sub">노션·메모앱 붙여넣기</div></div></button>';
+  html+='<button class="exp-btn" style="border-color:var(--lav);background:linear-gradient(135deg,rgba(238,238,255,.9),rgba(228,236,255,.9))" onclick="openLastCard()"><div class="exp-ic" style="background:linear-gradient(135deg,#EEF0FF,#DDD8F8)">🎴</div><div><div class="exp-title">DREAM CARD</div><div class="exp-sub">AI 생성 PNG 저장</div></div><span style="margin-left:auto;font-family:var(--px);font-size:6px;color:#78350F;background:#FDE68A;border:1.5px solid #B45309;border-radius:5px;padding:2px 7px">NEW</span></button>';
+  html+='</div></div>';
+
+  html+='<div class="card"><div class="card-hdr"><span class="card-hdr-icon">📌</span><span class="card-hdr-title">HOME SHORTCUT</span></div><div class="card-body">';
+  html+='<div class="widget-preview">';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div><div style="font-family:var(--px);font-size:8px;font-weight:700;color:#5B50B8;letter-spacing:.5px">🌙 TODAY</div><div style="font-size:10px;color:#9898C8;margin-top:2px;font-weight:600">'+(todayList.length>0?"오늘 꿈 "+todayList.length+"개 기록됨":"아직 오늘 꿈을 기록 안 했어요")+'</div></div>';
+  html+='<button onclick="switchTab(\'record\')" style="display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;background:linear-gradient(135deg,var(--lav),var(--sky));color:#fff;font-family:var(--px);font-size:7px;font-weight:700;border:none;cursor:pointer">+ 기록</button></div>';
+  html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
+  TAGS.slice(0,4).forEach(function(t){html+='<button onclick="S.selTag=\''+t.id+'\';switchTab(\'record\')" style="padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.75);border:1px solid var(--bdr2);font-size:10px;color:var(--lav);font-weight:700;cursor:pointer">'+t.e+" "+t.l+'</button>';});
+  html+='<button onclick="switchTab(\'record\')" style="padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.75);border:1px solid var(--bdr2);font-size:10px;color:var(--lav);font-weight:700;cursor:pointer">🎙 음성</button>';
+  html+='</div>';
+  if(cs>0){html+='<div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr2)"><div style="font-family:var(--px);font-size:15px;font-weight:900;color:#5B50B8">'+cs+'</div><div style="font-size:10px;color:#9898C8;font-weight:600">일 연속 기록</div><div style="display:flex;gap:3px;margin-left:auto">';
+  for(var di=0;di<Math.min(cs,7);di++)html+='<div style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--lav),var(--sky))"></div>';
+  html+='</div></div>';}
+  html+='</div>';
+  html+='<div class="shortcut-grid">';
+  html+='<button class="shortcut-item" onclick="shareApp()"><div style="font-size:20px;margin-bottom:4px">📱</div><div style="font-family:var(--px);font-size:7px;color:#5B50B8;margin-bottom:2px;letter-spacing:.5px">홈화면 추가</div><div style="font-size:9px;color:#B8B0D8;font-weight:600">브라우저 공유</div></button>';
+  html+='<button class="shortcut-item" onclick="copyUrl()"><div style="font-size:20px;margin-bottom:4px">🔖</div><div style="font-family:var(--px);font-size:7px;color:#5B50B8;margin-bottom:2px;letter-spacing:.5px">URL 복사</div><div style="font-size:9px;color:#B8B0D8;font-weight:600">북마크 저장</div></button>';
+  html+='</div></div></div>';
+
+  document.getElementById("tab-stats").innerHTML=html;
+}
+
+function copyAll(){var all=fl(S.dreams);if(!all.length){showToast("NO RECORDS!");return;}var txt=all.map(function(d){return "["+d.date+"] "+(d.content||"(내용 없음)")+"\n"+(d.haemong||"");}).join("\n\n---\n\n");navigator.clipboard.writeText(txt).then(function(){showToast("COPIED! 📋");});}
+function shareApp(){if(navigator.share)navigator.share({title:"Dreams Come True",url:location.href});else copyUrl();}
+function copyUrl(){navigator.clipboard.writeText(location.href).then(function(){showToast("🔗 URL 복사됐어요!");});}
+function openLastCard(){var all=fl(S.dreams);var last=all[all.length-1];if(last)openCardModal(last.id);else showToast("NO RECORDS!");}
+
+// ── 카드 모달 ──
+function findDream(id){return fl(S.dreams).find(function(d){return d.id===Number(id);});}
+function closeModal(){document.getElementById("card-modal").classList.remove("show");}
+function downloadCard(){
+  if(!S.cardPngUrl)return;
+  var a=document.createElement("a");a.href=S.cardPngUrl;a.download="dream-"+(S.cardDream?S.cardDream.date:"card")+".png";a.click();
+  showToast("🎴 CARD SAVED!");closeModal();
+  localStorage.setItem("dct_cards",String(parseInt(localStorage.getItem("dct_cards")||"0")+1));
+}
+function openCardModal(id){
+  var dream=findDream(id);if(!dream)return;
+  S.cardDream=dream;S.cardPngUrl=null;
+  document.getElementById("modal-title").textContent="✦ GENERATING CARD...";
+  var prev=document.getElementById("modal-preview");
+  var mood=MOODS[dream.moodIdx||0];
+  prev.style.background=mood.bg;
+  prev.innerHTML='<span style="font-size:24px;animation:spin 1s linear infinite;display:inline-block">⟳</span><p style="font-family:var(--px);font-size:8px;color:rgba(255,255,255,.7);margin-top:8px">AI GENERATING...</p>';
+  document.getElementById("modal-save-btn").disabled=true;
+  document.getElementById("modal-save-btn").textContent="⟳ 생성 중...";
+  document.getElementById("card-modal").classList.add("show");
+  genCard(dream);
+}
+function genCard(dream){
+  var t=TAGS.find(function(x){return x.id===dream.tag;}),mood=MOODS[dream.moodIdx||0];
+  var prompt="시적인 감성 카피라이터. 꿈 카드 텍스트.\n유형:"+(dream.type==="good"?"길몽":dream.type==="bad"?"악몽":"일반")+"/무드:"+mood.name+"/키워드:"+(t?t.e+" "+t.l:"없음")+"\n내용:"+(dream.content||"")+"/해몽:"+(dream.haemong||"")+"\n형식:\nTITLE:[10자이내]\nQUOTE:[22자이내]\nLINE1:[14자이내]\nLINE2:[14자이내]\nTAG1:[단어] TAG2:[단어] TAG3:[단어]";
+  aiCall(prompt,250,function(res){
+    var cd;
+    if(res){
+      var g=function(k){var line=(res.split("\n").find(function(l){return l.startsWith(k+":");}))||"";return line.slice(k.length+1).trim();};
+      cd={title:g("TITLE")||"오늘의 꿈",quote:g("QUOTE")||"꿈은 또 다른 현실",poem:[g("LINE1")||"별빛 아래 눈을 감아",g("LINE2")||"꿈이 나를 불렀다"],tags:[g("TAG1")||"드림",g("TAG2")||"몽상",g("TAG3")||"오늘"]};
+    }else{cd={title:"오늘의 꿈",quote:"꿈은 또 다른 현실이에요",poem:["별빛 아래 눈을 감아","꿈이 나를 불렀다"],tags:["드림","몽상","오늘"]};}
+    drawCard(dream,cd);
+  });
+}
+function drawCard(dream,cd){
+  var W=600,H=900,canvas=document.createElement("canvas");canvas.width=W;canvas.height=H;
+  var ctx=canvas.getContext("2d");
+  var pals={"몽환적":{g1:"#3B0764",g2:"#7C3AED",g3:"#C4B5FD"},"따뜻함":{g1:"#78350F",g2:"#D97706",g3:"#FEF3C7"},"평화로움":{g1:"#022C22",g2:"#059669",g3:"#D1FAE5"},"긴장감":{g1:"#450A0A",g2:"#DC2626",g3:"#FEE2E2"},"차분함":{g1:"#082F49",g2:"#0284C7",g3:"#E0F2FE"},"설렘":{g1:"#500724",g2:"#BE185D",g3:"#FCE7F3"}};
+  var p=pals[MOODS[dream.moodIdx||0].name]||pals["몽환적"];
+  var g=ctx.createLinearGradient(0,0,W*.6,H);g.addColorStop(0,p.g1);g.addColorStop(.5,p.g2);g.addColorStop(1,p.g3);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=.1;var r1=ctx.createRadialGradient(W*.8,H*.2,0,W*.8,H*.2,320);r1.addColorStop(0,"#fff");r1.addColorStop(1,"transparent");ctx.fillStyle=r1;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;
+  [[80,60,2],[520,120,1.5],[140,200,1],[470,340,2.5],[60,500,1.5],[540,620,2]].forEach(function(s){ctx.beginPath();ctx.arc(s[0],s[1],s[2],0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,.6)";ctx.fill();});
+  ctx.fillStyle="rgba(255,255,255,.4)";for(var i=0;i<W;i+=12)ctx.fillRect(i,0,8,4);
+  ctx.font="bold 11px monospace";ctx.fillStyle="rgba(255,255,255,.4)";ctx.fillText("DREAMS COME TRUE",56,76);
+  var t=TAGS.find(function(x){return x.id===dream.tag;}),md=MOODS[dream.moodIdx||0];
+  ctx.font="500 12px sans-serif";ctx.fillStyle="rgba(255,255,255,.5)";ctx.fillText(dream.date+"  ·  "+md.name+"  ·  "+(dream.type==="good"?"GOOD":dream.type==="bad"?"BAD":"NORMAL"),56,126);
+  ctx.font="900 50px sans-serif";ctx.fillStyle="#fff";ctx.fillText(cd.title,56,204);
+  ctx.font="italic 500 18px sans-serif";ctx.fillStyle="rgba(255,255,255,.8)";ctx.fillText('"'+cd.quote+'"',56,258);
+  ctx.beginPath();ctx.moveTo(44+18,326);ctx.lineTo(44+W-88-18,326);ctx.quadraticCurveTo(44+W-88,326,44+W-88,326+18);ctx.lineTo(44+W-88,326+118-18);ctx.quadraticCurveTo(44+W-88,326+118,44+W-88-18,326+118);ctx.lineTo(44+18,326+118);ctx.quadraticCurveTo(44,326+118,44,326+118-18);ctx.lineTo(44,326+18);ctx.quadraticCurveTo(44,326,44+18,326);ctx.closePath();ctx.fillStyle="rgba(255,255,255,.1)";ctx.fill();ctx.strokeStyle="rgba(255,255,255,.28)";ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle="rgba(255,255,255,.4)";ctx.fillRect(44,326,4,118);
+  ctx.font="700 16px sans-serif";ctx.fillStyle="rgba(255,255,255,.9)";cd.poem.forEach(function(line,i){ctx.fillText(line,72,374+i*40);});
+  ctx.strokeStyle="rgba(255,255,255,.15)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(56,484);ctx.lineTo(W-56,484);ctx.stroke();
+  if(t){ctx.font="700 13px sans-serif";var cw=ctx.measureText(t.e+" "+t.l).width+22;ctx.beginPath();ctx.arc(56+10,502+14,14,Math.PI*.5,Math.PI*1.5);ctx.arc(56+cw-10,502+14,14,Math.PI*1.5,Math.PI*.5);ctx.closePath();ctx.fillStyle="rgba(255,255,255,.18)";ctx.fill();ctx.fillStyle="rgba(255,255,255,.85)";ctx.fillText(t.e+" "+t.l,67,520);}
+  ctx.font="600 11px sans-serif";ctx.fillStyle="rgba(255,255,255,.5)";var tx=56;cd.tags.forEach(function(tg){ctx.fillText("#"+tg,tx,572);tx+=ctx.measureText("#"+tg).width+13;});
+  ctx.fillStyle="rgba(255,255,255,.38)";for(var j=0;j<W;j+=12)ctx.fillRect(j,H-4,8,4);
+  ctx.font="500 9px monospace";ctx.fillStyle="rgba(255,255,255,.28)";ctx.fillText("dreamscometrue.app",56,H-16);
+  S.cardPngUrl=canvas.toDataURL("image/png");
+  var prev=document.getElementById("modal-preview");prev.innerHTML='';
+  var img=new Image();img.src=S.cardPngUrl;img.style.cssText="width:100%;height:100%;object-fit:cover";prev.appendChild(img);
+  document.getElementById("modal-title").textContent="✦ DREAM CARD PREVIEW";
+  var btn=document.getElementById("modal-save-btn");btn.disabled=false;btn.innerHTML="⬇ SAVE PNG";
+}
+
+
+// ── SUPABASE ──
+var SUPA_URL = "https://jvsemgioamasluiumvqw.supabase.co";
+var SUPA_KEY = "sb_publishable_rAlGKl_A3j-usOoo_6TR9Q_jwjhxCMq";
+var supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+var currentUser = null;
+
+// 앱 시작 시 로그인 상태 확인
+supabase.auth.getSession().then(function(res){
+  if(res.data && res.data.session && res.data.session.user){
+    currentUser = res.data.session.user;
+    onLoggedIn();
+  } else {
+    showLoginScreen();
+  }
+});
+
+// 로그인 상태 변화 감지
+supabase.auth.onAuthStateChange(function(event, session){
+  if(event === "SIGNED_IN" && session){
+    currentUser = session.user;
+    onLoggedIn();
+  } else if(event === "SIGNED_OUT"){
+    currentUser = null;
+    showLoginScreen();
+  }
+});
+
+function showLoginScreen(){
+  document.getElementById("login").style.display = "flex";
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("app").style.display = "none";
+}
+
+function onLoggedIn(){
+  document.getElementById("login").style.display = "none";
+  // 유저 이메일 표시
+  var badge = document.getElementById("user-badge");
+  var emailTxt = document.getElementById("user-email-txt");
+  if(badge) badge.style.display = "flex";
+  if(emailTxt) emailTxt.textContent = currentUser.email;
+  // DB에서 꿈 데이터 불러오기
+  loadDreamsFromDB(function(){
+    // 인트로 화면으로
+    document.getElementById("intro").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+  });
+}
+
+var loginMode = "signin";
+function switchLoginTab(mode){
+  loginMode = mode;
+  document.getElementById("tab-signin").classList.toggle("active", mode==="signin");
+  document.getElementById("tab-signup").classList.toggle("active", mode==="signup");
+  document.getElementById("login-btn").textContent = mode==="signin" ? "LOGIN ▶" : "SIGN UP ▶";
+  document.getElementById("login-name-wrap").style.display = mode==="signup" ? "block" : "none";
+  document.getElementById("login-err").textContent = "";
+  document.getElementById("login-ok").textContent = "";
+}
+
+function doLogin(){
+  var email = document.getElementById("login-email").value.trim();
+  var pw = document.getElementById("login-pw").value.trim();
+  var errEl = document.getElementById("login-err");
+  var okEl = document.getElementById("login-ok");
+  var btn = document.getElementById("login-btn");
+  if(!email || !pw){ errEl.textContent = "이메일과 비밀번호를 입력해주세요"; return; }
+  if(pw.length < 6){ errEl.textContent = "비밀번호는 6자 이상이어야 해요"; return; }
+  btn.disabled = true;
+  errEl.textContent = "";
+  okEl.textContent = "";
+  if(loginMode === "signup"){
+    supabase.auth.signUp({email:email, password:pw}).then(function(res){
+      btn.disabled = false;
+      if(res.error){ errEl.textContent = res.error.message; return; }
+      okEl.textContent = "가입 완료! 이메일을 확인하거나 바로 로그인해보세요 ✦";
+    });
+  } else {
+    supabase.auth.signInWithPassword({email:email, password:pw}).then(function(res){
+      btn.disabled = false;
+      if(res.error){ errEl.textContent = "이메일 또는 비밀번호가 틀렸어요"; return; }
+    });
+  }
+}
+
+function doLogout(){
+  supabase.auth.signOut().then(function(){
+    S.dreams = {};
+    showToast("로그아웃 됐어요 🌙");
+  });
+}
+
+// ── DB 저장/불러오기 ──
+function loadDreamsFromDB(callback){
+  if(!currentUser){ if(callback) callback(); return; }
+  supabase.from("dreams").select("*").order("date", {ascending:false}).then(function(res){
+    if(res.error){ console.error("DB 로드 실패:", res.error); if(callback) callback(); return; }
+    // DB 데이터를 S.dreams 형태로 변환
+    S.dreams = {};
+    (res.data||[]).forEach(function(row){
+      if(!S.dreams[row.date]) S.dreams[row.date] = [];
+      S.dreams[row.date].push({
+        id: row.id,
+        date: row.date,
+        content: row.content || "",
+        type: row.type || "normal",
+        isLucid: row.is_lucid || false,
+        tag: row.tag || null,
+        haemong: row.haemong || "",
+        story: row.story || "",
+        playlist: row.playlist || null
+      });
+    });
+    if(callback) callback();
+  });
+}
+
+function saveDreamToDB(dream, callback){
+  if(!currentUser){ if(callback) callback(); return; }
+  supabase.from("dreams").insert({
+    user_id: currentUser.id,
+    date: dream.date,
+    content: dream.content || "",
+    type: dream.type || "normal",
+    is_lucid: dream.isLucid || false,
+    tag: dream.tag || null,
+    haemong: dream.haemong || "",
+    story: dream.story || "",
+    playlist: dream.playlist || null
+  }).select().then(function(res){
+    if(res.error){ console.error("DB 저장 실패:", res.error); if(callback) callback(null); return; }
+    if(callback) callback(res.data && res.data[0]);
+  });
+}
+
+function deleteDreamFromDB(id, callback){
+  if(!currentUser){ if(callback) callback(); return; }
+  supabase.from("dreams").delete().eq("id", id).then(function(res){
+    if(callback) callback();
+  });
+}
+
+</script></body></html>
